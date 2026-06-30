@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
 
+// ===== FIX: Use environment variable for API URL =====
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+// =====================================================
+
 // Create the context
 const SearchContext = createContext();
 
@@ -39,12 +43,14 @@ export const SearchProvider = ({ children }) => {
   const fetchProperties = async () => {
     setIsSearching(true);
     try {
-      const response = await axios.get('http://localhost:5000/api/properties');
+      // ✅ FIXED: Using environment variable instead of hardcoded localhost
+      const response = await axios.get(`${API_BASE}/properties`);
       setAllProperties(response.data);
       setSearchResults(response.data);
       setDataLoaded(true);
+      console.log('✅ Properties fetched from:', `${API_BASE}/properties`);
     } catch (error) {
-      console.error('Error fetching properties:', error);
+      console.error('❌ Error fetching properties:', error);
       setAllProperties([]);
       setSearchResults([]);
       setDataLoaded(true);
