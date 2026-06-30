@@ -1,0 +1,87 @@
+/* admin/src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary-50: #f0f7f4;
+    --color-primary-100: #d9ebe4;
+    --color-primary-200: #b3d7c9;
+    --color-primary-300: #8cc3ae;
+    --color-primary-400: #66af93;
+    --color-primary-500: #4a8c73;
+    --color-primary-600: #3b705c;
+    --color-primary-700: #2c5445;
+    --color-primary-800: #1e382e;
+    --color-primary-900: #0f1c17;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300;
+  }
+
+  /* Dark mode scrollbar */
+  .dark ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .dark ::-webkit-scrollbar-track {
+    background: #1a1a2e;
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    background: #3b705c;
+    border-radius: 4px;
+  }
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: #4a8c73;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold py-2 px-4 rounded-lg transition-all duration-200;
+  }
+  
+  .btn-success {
+    @apply bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200;
+  }
+  
+  .btn-danger {
+    @apply bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200;
+  }
+  
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 md:p-6 transition-colors duration-300;
+  }
+  
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors duration-300;
+  }
+
+  /* Dark mode card hover */
+  .dark .card:hover {
+    @apply border-gray-600 shadow-lg;
+  }
+
+  /* Dark mode table */
+  .dark .table-container {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  .dark .table-header {
+    @apply bg-gray-900/50;
+  }
+
+  .dark .table-row {
+    @apply hover:bg-gray-700/50 border-gray-700;
+  }
+}
