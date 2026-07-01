@@ -2,7 +2,8 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import axios from 'axios';
 
 // ===== FIX: Use environment variable for API URL =====
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+// Note: API_BASE should NOT include /api
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 // =====================================================
 
 // Create the context
@@ -43,12 +44,12 @@ export const SearchProvider = ({ children }) => {
   const fetchProperties = async () => {
     setIsSearching(true);
     try {
-      // ✅ FIXED: Using environment variable instead of hardcoded localhost
-      const response = await axios.get(`${API_BASE}/properties`);
+      // ✅ FIXED: Add /api to the request
+      const response = await axios.get(`${API_BASE}/api/properties`);
       setAllProperties(response.data);
       setSearchResults(response.data);
       setDataLoaded(true);
-      console.log('✅ Properties fetched from:', `${API_BASE}/properties`);
+      console.log('✅ Properties fetched from:', `${API_BASE}/api/properties`);
     } catch (error) {
       console.error('❌ Error fetching properties:', error);
       setAllProperties([]);
@@ -61,18 +62,18 @@ export const SearchProvider = ({ children }) => {
 
   const performSearch = useCallback((params = searchParams) => {
     setIsSearching(true);
-    
+
     let results = [...allProperties];
 
-    const hasFilters = params.location || 
-                      params.propertyType || 
-                      params.listingType || 
-                      params.minPrice || 
-                      params.maxPrice || 
-                      params.bedrooms || 
-                      params.bathrooms || 
-                      (params.amenities && params.amenities.length > 0) || 
-                      params.furnished;
+    const hasFilters = params.location ||
+      params.propertyType ||
+      params.listingType ||
+      params.minPrice ||
+      params.maxPrice ||
+      params.bedrooms ||
+      params.bathrooms ||
+      (params.amenities && params.amenities.length > 0) ||
+      params.furnished;
 
     if (!hasFilters) {
       setSearchResults(allProperties);
@@ -82,7 +83,7 @@ export const SearchProvider = ({ children }) => {
 
     if (params.location) {
       const locationLower = params.location.toLowerCase();
-      results = results.filter(p => 
+      results = results.filter(p =>
         p.location?.toLowerCase().includes(locationLower) ||
         p.location?.split(',')[0].toLowerCase().includes(locationLower)
       );
@@ -112,8 +113,8 @@ export const SearchProvider = ({ children }) => {
     }
 
     if (params.amenities && params.amenities.length > 0) {
-      results = results.filter(p => 
-        params.amenities.every(amenity => 
+      results = results.filter(p =>
+        params.amenities.every(amenity =>
           p.amenities?.includes(amenity) || p.selectedAmenities?.includes(amenity)
         )
       );
