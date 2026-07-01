@@ -16,6 +16,7 @@ const allowedOrigins = [
   'http://localhost:5174',
   'https://primeestate-frontend.onrender.com',
   'https://primeestate-admin.onrender.com',
+  'https://real-estate21111.netlify.app', // ← ADDED YOUR NETLIFY URL
   process.env.FRONTEND_URL,
   process.env.ADMIN_URL
 ].filter(Boolean);
