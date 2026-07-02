@@ -1,4 +1,3 @@
-// frontend/pages/AdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,6 +6,10 @@ import {
   Clock, Users, Home, TrendingUp,
   AlertCircle, CheckCircle, XCircle
 } from 'lucide-react';
+
+// ===== FIX: Use environment variable for API URL =====
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+// =====================================================
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -27,9 +30,9 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       const [pendingRes, propertiesRes, usersRes] = await Promise.all([
-        axios.get('/api/admin/properties/pending'),
-        axios.get('/api/admin/properties'),
-        axios.get('/api/admin/users')
+        axios.get(`${API_BASE}/api/admin/properties/pending`),
+        axios.get(`${API_BASE}/api/admin/properties`),
+        axios.get(`${API_BASE}/api/admin/users`)
       ]);
 
       setPendingProperties(pendingRes.data.properties);
@@ -45,19 +48,19 @@ const AdminDashboard = () => {
 
   const approveProperty = async (id) => {
     try {
-      await axios.patch(`/api/admin/properties/${id}/approve`);
+      await axios.patch(`${API_BASE}/api/admin/properties/${id}/approve`);
       await fetchData();
     } catch (error) {
       console.error('Error approving property:', error);
     }
   };
 
-  const rejectProperty = async (id, reason) => {
+  const rejectProperty = async (id) => {
     const reasonText = prompt('Reason for rejection:');
     if (!reasonText) return;
     
     try {
-      await axios.patch(`/api/admin/properties/${id}/reject`, { reason: reasonText });
+      await axios.patch(`${API_BASE}/api/admin/properties/${id}/reject`, { reason: reasonText });
       await fetchData();
     } catch (error) {
       console.error('Error rejecting property:', error);
@@ -69,7 +72,7 @@ const AdminDashboard = () => {
     if (!reason) return;
     
     try {
-      await axios.post(`/api/admin/users/${id}/flag`, { reason });
+      await axios.post(`${API_BASE}/api/admin/users/${id}/flag`, { reason });
       await fetchData();
     } catch (error) {
       console.error('Error flagging user:', error);
@@ -78,7 +81,7 @@ const AdminDashboard = () => {
 
   const verifyAgent = async (id) => {
     try {
-      await axios.patch(`/api/admin/users/${id}/verify-agent`);
+      await axios.patch(`${API_BASE}/api/admin/users/${id}/verify-agent`);
       await fetchData();
     } catch (error) {
       console.error('Error verifying agent:', error);
@@ -111,7 +114,6 @@ const AdminDashboard = () => {
   return (
     <div className="pt-20 min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container-custom py-8">
-        {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-display font-bold text-gray-900 dark:text-white">
@@ -127,7 +129,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
@@ -183,7 +184,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="flex space-x-2 mb-6 border-b border-gray-200 dark:border-gray-700">
           <button
             onClick={() => setActiveTab('pending')}
@@ -217,7 +217,6 @@ const AdminDashboard = () => {
           </button>
         </div>
 
-        {/* Pending Properties */}
         {activeTab === 'pending' && (
           <div className="space-y-4">
             {pendingProperties.length === 0 ? (
@@ -276,7 +275,6 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* All Properties */}
         {activeTab === 'properties' && (
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
             <div className="overflow-x-auto">
@@ -319,7 +317,6 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* Users */}
         {activeTab === 'users' && (
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
             <div className="overflow-x-auto">

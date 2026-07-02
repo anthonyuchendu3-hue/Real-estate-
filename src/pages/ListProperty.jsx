@@ -11,6 +11,10 @@ import {
 import { PROPERTY_TYPES, LISTING_TYPES, NIGERIAN_STATES, AMENITIES } from '../utils/constants';
 import { useAuth } from '../contexts/AuthContext';
 
+// ===== FIX: Use environment variable for API URL =====
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+// =====================================================
+
 const ListProperty = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -44,7 +48,6 @@ const ListProperty = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  // ===== AUTO-FILL AGENT FIELDS WHEN USER DATA IS AVAILABLE =====
   useEffect(() => {
     if (user) {
       setFormData(prev => ({
@@ -57,7 +60,6 @@ const ListProperty = () => {
     }
   }, [user]);
 
-  // ===== CHECK IF USER IS BLOCKED OR FLAGGED =====
   if (user?.isBlocked || user?.isFlagged) {
     return (
       <div className="pt-16 sm:pt-20 min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
@@ -104,7 +106,6 @@ const ListProperty = () => {
     );
   }
 
-  // ===== IF USER NOT LOGGED IN =====
   if (!user) {
     return (
       <div className="pt-16 sm:pt-20 min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
@@ -200,7 +201,6 @@ const ListProperty = () => {
     setUploadedImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Upload images to Cloudinary
   const uploadImages = async (images) => {
     const formData = new FormData();
     images.forEach(image => {
@@ -208,7 +208,7 @@ const ListProperty = () => {
     });
 
     try {
-      const response = await axios.post('http://localhost:5000/api/upload/', formData, {
+      const response = await axios.post(`${API_BASE}/api/upload/`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -259,7 +259,7 @@ const ListProperty = () => {
         verified: false
       };
 
-      const response = await axios.post('http://localhost:5000/api/properties', propertyData);
+      const response = await axios.post(`${API_BASE}/api/properties`, propertyData);
       
       if (response.status === 201) {
         setShowSuccess(true);
@@ -292,7 +292,7 @@ const ListProperty = () => {
         setTimeout(() => {
           setShowSuccess(false);
           navigate('/properties');
-        }, 5000); // Increased to 5 seconds to allow reading
+        }, 5000);
       }
     } catch (err) {
       console.error('Error submitting property:', err);
@@ -762,7 +762,6 @@ const ListProperty = () => {
             </p>
           </div>
 
-          {/* ===== UPDATED SUCCESS MESSAGE ===== */}
           {showSuccess && (
             <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-300">
               <div className="flex items-start space-x-3">
@@ -795,7 +794,6 @@ const ListProperty = () => {
               {step === 5 && renderStep5()}
             </div>
 
-            {/* ===== BUTTONS ===== */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
               {step > 1 && (
                 <button

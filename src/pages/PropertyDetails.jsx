@@ -12,6 +12,10 @@ import { useFavorites } from '../contexts/FavoritesContext';
 import { useAuth } from '../contexts/AuthContext';
 import { properties as allProperties } from '../data/properties';
 
+// ===== FIX: Use environment variable for API URL =====
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+// =====================================================
+
 // Video properties data (only for the HomesWithVideos section)
 const VIDEO_PROPERTIES = [
   {
@@ -245,16 +249,13 @@ const PropertyDetails = () => {
         }
         
         // ===== STEP 2: Check if it's a real property from the data file =====
-        // First check if the ID exists in our local properties data
         const localProperty = allProperties.find(p => {
-          // Check by _id or id
           const pId = p._id || String(p.id);
           return pId === id || String(p.id) === id;
         });
         
         if (localProperty) {
           console.log('🏠 Found property in local data:', localProperty.title);
-          // Add _id if it doesn't have one
           const propertyWithId = {
             ...localProperty,
             _id: localProperty._id || String(localProperty.id),
@@ -267,13 +268,12 @@ const PropertyDetails = () => {
         }
         
         // ===== STEP 3: Try to fetch from API =====
-        // Check if it's a valid MongoDB ObjectId (24 hex chars)
         const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(id);
         
         if (isValidObjectId) {
           console.log('🔄 Trying API for ObjectId:', id);
           try {
-            const response = await axios.get(`http://localhost:5000/api/properties/${id}`);
+            const response = await axios.get(`${API_BASE}/api/properties/${id}`);
             console.log('✅ Found property in API:', response.data.title);
             setProperty(response.data);
             setIsFavorite(isFavorited(id));
@@ -303,7 +303,6 @@ const PropertyDetails = () => {
           }
         }
         
-        // ===== If we get here, property wasn't found =====
         setError('Property not found. It may have been removed or the ID is invalid.');
         
       } catch (error) {
@@ -361,7 +360,6 @@ const PropertyDetails = () => {
     }
   };
 
-  // WhatsApp function
   const openWhatsApp = (phoneNumber, propertyTitle) => {
     const cleanNumber = phoneNumber?.replace(/[^0-9+]/g, '') || '';
     const message = `Hello, I'm interested in the property: ${propertyTitle}. I found it on PrimeEstate. Can you please provide more information?`;
@@ -370,13 +368,11 @@ const PropertyDetails = () => {
     window.open(waUrl, '_blank');
   };
 
-  // Phone call function
   const makePhoneCall = (phoneNumber) => {
     const cleanNumber = phoneNumber?.replace(/[^0-9+]/g, '') || '';
     window.location.href = `tel:${cleanNumber}`;
   };
 
-  // Share function
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
@@ -390,7 +386,6 @@ const PropertyDetails = () => {
     }
   };
 
-  // Show loading state
   if (isLoading) {
     return (
       <div className="pt-16 sm:pt-20 min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
@@ -402,7 +397,6 @@ const PropertyDetails = () => {
     );
   }
 
-  // Show error state
   if (error) {
     return (
       <div className="pt-16 sm:pt-20 min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
@@ -435,13 +429,11 @@ const PropertyDetails = () => {
     );
   }
 
-  // Check if it's a video property
   const isVideoProperty = property.isVideo || property.videoId;
 
   return (
     <div className="pt-16 sm:pt-20 min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       <div className="container-custom py-4">
-        {/* Back Button */}
         <button
           onClick={() => navigate('/properties')}
           className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors mb-4"
@@ -451,10 +443,8 @@ const PropertyDetails = () => {
         </button>
 
         <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700">
-          {/* Image Gallery or Video */}
           <div className="relative h-64 sm:h-96 md:h-[500px]">
             {isVideoProperty && property.videoId ? (
-              // Show YouTube video for video properties
               <div className="w-full h-full bg-black">
                 <iframe
                   className="w-full h-full"
@@ -466,7 +456,6 @@ const PropertyDetails = () => {
                 />
               </div>
             ) : (
-              // Show image gallery for regular properties
               <>
                 <img
                   src={property.images?.[currentImage] || property.image || 'https://via.placeholder.com/800x500'}
@@ -497,7 +486,6 @@ const PropertyDetails = () => {
               </>
             )}
 
-            {/* Video Badge */}
             {isVideoProperty && (
               <div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center space-x-1">
                 <span>▶</span>
@@ -505,7 +493,6 @@ const PropertyDetails = () => {
               </div>
             )}
 
-            {/* Action Buttons - Heart & Share */}
             <div className="absolute top-4 right-4 flex flex-col space-y-2">
               <button 
                 onClick={handleFavoriteToggle}
@@ -542,7 +529,6 @@ const PropertyDetails = () => {
             </div>
           </div>
 
-          {/* Content */}
           <div className="p-4 sm:p-6 md:p-8">
             <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
               <div>
@@ -578,7 +564,6 @@ const PropertyDetails = () => {
               </div>
             </div>
 
-            {/* Tags */}
             <div className="flex flex-wrap gap-2 mb-6">
               <span className="bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 text-sm px-3 py-1 rounded-full">
                 {property.type || 'Property'}
@@ -610,7 +595,6 @@ const PropertyDetails = () => {
               )}
             </div>
 
-            {/* Key Details */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
               <div className="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                 <Bed className="w-5 h-5 text-primary-600 dark:text-primary-400 mx-auto mb-1" />
@@ -634,13 +618,11 @@ const PropertyDetails = () => {
               </div>
             </div>
 
-            {/* Description */}
             <div className="mb-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
               <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{property.description || 'No description available.'}</p>
             </div>
 
-            {/* Amenities */}
             {property.amenities && property.amenities.length > 0 && (
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Amenities</h3>
@@ -654,7 +636,6 @@ const PropertyDetails = () => {
               </div>
             )}
 
-            {/* Agent Section */}
             {property.agent && (
               <div className="border-t border-gray-100 dark:border-gray-700 pt-6">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -666,7 +647,6 @@ const PropertyDetails = () => {
                 
                 <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-                    {/* Agent Avatar */}
                     <div className="flex items-center space-x-4 sm:space-x-0">
                       <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center text-2xl sm:text-3xl font-bold text-white flex-shrink-0 shadow-md">
                         {property.agent.name?.charAt(0) || 'A'}
@@ -682,7 +662,6 @@ const PropertyDetails = () => {
                       </div>
                     </div>
 
-                    {/* Agent Details */}
                     <div className="flex-1">
                       <div className="hidden sm:block">
                         <p className="font-semibold text-gray-900 dark:text-white text-lg">
@@ -706,7 +685,6 @@ const PropertyDetails = () => {
                       </div>
                     </div>
 
-                    {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                       <button 
                         onClick={() => makePhoneCall(property.agent.phone)}
@@ -725,7 +703,6 @@ const PropertyDetails = () => {
                     </div>
                   </div>
 
-                  {/* Agent Rating */}
                   {property.agent.rating && (
                     <div className="flex items-center space-x-1 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                       <div className="flex items-center">

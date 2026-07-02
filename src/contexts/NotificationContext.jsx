@@ -2,6 +2,10 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
 
+// ===== FIX: Use environment variable for API URL =====
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+// =====================================================
+
 const NotificationContext = createContext();
 
 export const useNotifications = () => {
@@ -28,7 +32,7 @@ export const NotificationProvider = ({ children }) => {
 
     try {
       console.log('🔔 Fetching user notifications...');
-      const response = await axios.get('http://localhost:5000/api/admin/user/notifications', {
+      const response = await axios.get(`${API_BASE}/api/admin/user/notifications`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -51,7 +55,6 @@ export const NotificationProvider = ({ children }) => {
 
   useEffect(() => {
     fetchNotifications();
-    // Poll for new notifications every 30 seconds
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [user, token]);
@@ -60,7 +63,7 @@ export const NotificationProvider = ({ children }) => {
     if (!user || !token) return;
 
     try {
-      await axios.patch(`http://localhost:5000/api/admin/user/notifications/${id}/read`, {}, {
+      await axios.patch(`${API_BASE}/api/admin/user/notifications/${id}/read`, {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -79,7 +82,7 @@ export const NotificationProvider = ({ children }) => {
     if (!user || !token) return;
 
     try {
-      await axios.patch('http://localhost:5000/api/admin/user/notifications/read-all', {}, {
+      await axios.patch(`${API_BASE}/api/admin/user/notifications/read-all`, {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }

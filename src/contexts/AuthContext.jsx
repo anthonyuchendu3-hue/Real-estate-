@@ -1,6 +1,9 @@
-// frontend/src/contexts/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+
+// ===== FIX: Use environment variable for API URL =====
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+// =====================================================
 
 const AuthContext = createContext();
 
@@ -45,7 +48,7 @@ export const AuthProvider = ({ children }) => {
   const fetchUser = async () => {
     try {
       console.log('👤 Fetching user data...');
-      const response = await axios.get('http://localhost:5000/api/auth/me');
+      const response = await axios.get(`${API_BASE}/api/auth/me`);
       console.log('✅ User fetched:', response.data);
       setUser(response.data);
     } catch (error) {
@@ -61,7 +64,7 @@ export const AuthProvider = ({ children }) => {
   // ===== SIGNUP =====
   const signup = async (userData) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/signup', userData);
+      const response = await axios.post(`${API_BASE}/api/auth/signup`, userData);
       const { user, requiresVerification, message } = response.data;
       
       console.log('✅ Signup successful:', user.email);
@@ -91,7 +94,7 @@ export const AuthProvider = ({ children }) => {
   // ===== VERIFY EMAIL =====
   const verifyEmail = async (verificationToken) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/verify-email', { 
+      const response = await axios.post(`${API_BASE}/api/auth/verify-email`, { 
         token: verificationToken 
       });
       
@@ -123,7 +126,7 @@ export const AuthProvider = ({ children }) => {
   // ===== RESEND VERIFICATION =====
   const resendVerification = async (email) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/resend-verification', { email });
+      const response = await axios.post(`${API_BASE}/api/auth/resend-verification`, { email });
       showToast(response.data.message || 'Verification email resent!', 'success');
       return { success: true };
     } catch (error) {
@@ -140,10 +143,9 @@ export const AuthProvider = ({ children }) => {
   // ===== SIGN IN WITH BLOCK/FLAG CHECK =====
   const signin = async (email, password) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/signin', { email, password });
+      const response = await axios.post(`${API_BASE}/api/auth/signin`, { email, password });
       const { token, user } = response.data;
       
-      // Check if user is blocked
       if (user.isBlocked) {
         return { 
           success: false, 
@@ -152,7 +154,6 @@ export const AuthProvider = ({ children }) => {
         };
       }
 
-      // Check if user is flagged
       if (user.isFlagged) {
         return { 
           success: false, 
@@ -175,7 +176,6 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Login error:', error);
       
-      // Check if response indicates block or flag
       if (error.response?.data?.isBlocked) {
         return { 
           success: false, 

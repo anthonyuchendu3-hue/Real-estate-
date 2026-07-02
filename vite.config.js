@@ -4,7 +4,6 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // ===== IMPORTANT: Set base to '/' for Render =====
   base: '/',
   server: {
     port: 5173,
@@ -27,9 +26,19 @@ export default defineConfig({
       }
     }
   },
-  // ===== Build configuration =====
   build: {
     outDir: 'dist',
     sourcemap: false,
+    // ===== ADD THIS: Ensure _redirects is copied =====
+    rollupOptions: {
+      output: {
+        // Keep the _redirects file in the root of dist
+        assetFileNames: '[name].[hash][extname]',
+        chunkFileNames: '[name].[hash].js',
+        entryFileNames: '[name].[hash].js'
+      }
+    },
+    // This ensures the public directory is fully copied
+    copyPublicDir: true
   }
 })
